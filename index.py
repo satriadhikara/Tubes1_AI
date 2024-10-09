@@ -139,7 +139,7 @@ class Cube:
         iterations = 0
         neighbour,neighbour_value = self.getNeighbour()
         # print("first get neighbour")
-        while neighbour_value < self.value:
+        while (neighbour_value < self.value) and (neighbour_value is not None):
             iterations += 1
             self.pastGrid.append(self.grid)
             self.grid = neighbour
@@ -150,12 +150,29 @@ class Cube:
         elapsed_time = end_time - start_time
         print(f"Steepest Ascent ran for {iterations} iterations and {elapsed_time} seconds, final value : {self.value}")
 
+    def steepestSideways(self):
+        import time
+        start_time = time.time()
+        iterations = 0
+        neighbour,neighbour_value = self.getNeighbour()
+        # print("first get neighbour")
+        while neighbour_value <= self.value and (neighbour_value is not None):
+            iterations += 1
+            self.pastGrid.append(self.grid)
+            self.grid = neighbour
+            self.value = neighbour_value
+            neighbour,neighbour_value = self.getNeighbour()
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Steepest Sideways ran for {iterations} iterations and {elapsed_time} seconds, final value : {self.value}")
 
 
 def main():
     cube = Cube()
     # print(cube.evaluate_cube())
-    cube.steepestAscent()
+    # cube.steepestAscent()
+    cube.steepestSideways()
     cube.print_grid()
 
 
