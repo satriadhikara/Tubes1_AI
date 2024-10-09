@@ -4,8 +4,10 @@ import random
 class Cube:
     def __init__(self):
         self.size = 5  # Ukuran kubus
-        self.grid = self.generate_grid()
+        self.grid = self.generate_grid() # 3 Dimensional Array
         self.magic_number = self.calculate_magic_number()
+        self.value = self.evaluate_cube()
+        self.pastGrid = [] # possibly 4 Dimensional array
 
     def generate_grid(self):
         numbers = list(
@@ -106,10 +108,55 @@ class Cube:
 
         return total_deviation
 
+    def switch(self,x1,y1,z1,x2,y2,z2):
+        temp = self.grid[x1][y1][z1]
+        self.grid[x1][y1][z1] = self.grid[x2][y2][z2]
+        self.grid[x2][y2][z2] = temp
+
+    def getNeighbour(self):
+        import copy
+        neighbour = None
+        max_value = None
+        for z1 in range(5):
+            for y1 in range(5):
+                for x1 in range(5):
+                    for z2 in range(5):
+                        for y2 in range(5):
+                            for x2 in range(5):
+                                self.switch(x1,y1,z1,x2,y2,z2)
+                                value = self.evaluate_cube()
+                                if self.grid not in self.pastGrid:
+                                    if max_value is None or value < max_value:
+                                        neighbour = copy.deepcopy(self.grid)
+                                        max_value = value
+                                self.switch(x1,y1,z1,x2,y2,z2)
+        print(f"value : {max_value}")
+        return neighbour,max_value
+    
+    def steepestAscent(self):
+        import time
+        start_time = time.time()
+        iterations = 0
+        neighbour,neighbour_value = self.getNeighbour()
+        # print("first get neighbour")
+        while neighbour_value < self.value:
+            iterations += 1
+            self.pastGrid.append(self.grid)
+            self.grid = neighbour
+            self.value = neighbour_value
+            neighbour,neighbour_value = self.getNeighbour()
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Steepest Ascent ran for {iterations} iterations and {elapsed_time} seconds, final value : {self.value}")
+
+
 
 def main():
     cube = Cube()
-    print(cube.evaluate_cube())
+    # print(cube.evaluate_cube())
+    cube.steepestAscent()
+    cube.print_grid()
 
 
 if __name__ == "__main__":
