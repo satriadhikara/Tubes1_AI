@@ -1,5 +1,6 @@
 import React from "react";
 import MagicCube from "./MagicCube";
+<<<<<<< HEAD
 import MagicCube1 from "./MagicCube1";
 import Result from "./Result";
 import './App.css';
@@ -18,4 +19,15 @@ const App: React.FC = () => {
     );
 };
 
+=======
+
+const App: React.FC = () => {
+    return (
+        <div>
+            <MagicCube />
+        </div>
+    );
+};
+
+>>>>>>> a955b0b (add cube)
 export default App;
