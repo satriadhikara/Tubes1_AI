@@ -57,8 +57,9 @@ function createNumberTexture(number: number): THREE.CanvasTexture {
 const MagicCube: React.FC = () => {
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-    const controlsRef = useRef<OrbitControls | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const controlsRef = useRef<OrbitControls | null>(null);
+
     const initialCameraPosition = new THREE.Vector3(0, 0, 10); // Set your initial camera position
 
     useEffect(() => {
@@ -71,6 +72,7 @@ const MagicCube: React.FC = () => {
         if (containerRef.current){
             containerRef.current.appendChild(renderer.domElement)
         }
+
         rendererRef.current = renderer;
 
         const scene = new THREE.Scene();
@@ -117,12 +119,7 @@ const MagicCube: React.FC = () => {
         }
 
         const cube1 = makeCube();
-        // const cube2 = makeCube();
-
-        // cube1.position.set(100,0,0);
-        // cube2.position.set(4,0,0);
         
-
 
         scene.add(cube1);
 
@@ -152,7 +149,7 @@ const MagicCube: React.FC = () => {
 
     return (
         <div>
-            <button onClick={resetCamera} style={{ position: 'absolute', top: '70px', left: '30px', zIndex: 1 , backgroundColor:'#000000',color:'#ffffff',padding:'8px',borderRadius:'10px'}}>
+            <button onClick={resetCamera} style={{ position: 'absolute', top: '70px', right: '30px', zIndex: 1 , backgroundColor:'#000000',color:'#ffffff',padding:'8px',borderRadius:'10px'}}>
                 Reset View
             </button>
             <div ref={containerRef} />
