@@ -1,6 +1,7 @@
 import React from "react";
 import MagicCube from "./MagicCube";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import MagicCube1 from "./MagicCube1";
 import Result from "./Result";
 import './App.css';
@@ -20,12 +21,23 @@ const App: React.FC = () => {
 };
 
 =======
+=======
+import MagicCube1 from "./MagicCube1";
+import Result from "./Result";
+import './App.css';
+>>>>>>> cb296d4 (feat : result display UI)
 
 const App: React.FC = () => {
     return (
-        <div>
-            <MagicCube />
+        <div className=" p-6">
+            <Result />
+            <div className='flex flex-row gap-6'>
+                <MagicCube />
+                <MagicCube1 />
+            </div>
         </div>
+        
+
     );
 };
 

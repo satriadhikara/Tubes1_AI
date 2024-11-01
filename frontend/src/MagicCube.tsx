@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -15,6 +16,9 @@ const magicCubeArray: number[][][] = [
 >>>>>>> a955b0b (add cube)
 =======
 import React, { useEffect } from "react";
+=======
+import React, { useEffect, useRef } from "react";
+>>>>>>> cb296d4 (feat : result display UI)
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
@@ -159,64 +163,87 @@ const MagicCube: React.FC = () => {
 >>>>>>> dd99b8b (add number in cube)
 
 const MagicCube: React.FC = () => {
+    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+    const controlsRef = useRef<OrbitControls | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const initialCameraPosition = new THREE.Vector3(0, 0, 10); // Set your initial camera position
+
     useEffect(() => {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
+        const w = window.innerWidth/2;
+        const h = window.innerHeight*3/4;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(w, h);
-        document.body.appendChild(renderer.domElement);
 
-        const fov = 75;
-        const aspect = w / h;
-        const near = 0.1;
-        const far = 100;
-        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        camera.position.z = 10;
+        if (containerRef.current){
+            containerRef.current.appendChild(renderer.domElement)
+        }
+        rendererRef.current = renderer;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xdee2e6);
+        const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+        camera.position.copy(initialCameraPosition);
+        cameraRef.current = camera;
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.03;
+        controls.dampingFactor = 0.25;
+        controlsRef.current = controls;
 
         const cubeSize = 0.5;
         const spacing = 1;
-        const parentCube = new THREE.Group();
 
-        for (let x = 0; x < 5; x++) {
-            for (let y = 0; y < 5; y++) {
-                for (let z = 0; z < 5; z++) {
-                    const number = magic_cube[x][y][z];
+        const makeCube = () =>{
+            const parentCube = new THREE.Group();
 
-                    // Create a texture for each face
-                    const numberTexture = createNumberTexture(number);
-                    const faceMaterials = Array(6).fill(new THREE.MeshBasicMaterial({ map: numberTexture }));
+            for (let x = 0; x < 5; x++) {
+                for (let y = 0; y < 5; y++) {
+                    for (let z = 0; z < 5; z++) {
+                        const number = magic_cube[x][y][z];
 
-                    // Create the cube with each face showing the number
-                    const smallCube = new THREE.Mesh(new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize), faceMaterials);
+                        // Create a texture for each face
+                        const numberTexture = createNumberTexture(number);
+                        const faceMaterials = Array(6).fill(new THREE.MeshBasicMaterial({ map: numberTexture }));
 
-                    // Position the cube in 3D space
-                    smallCube.position.set(
-                        (x - 2) * spacing,
-                        (y - 2) * spacing,
-                        (z - 2) * spacing
-                    );
+                        // Create the cube with each face showing the number
+                        const smallCube = new THREE.Mesh(new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize), faceMaterials);
 
-                    parentCube.add(smallCube);
+                        // Position the cube in 3D space
+                        smallCube.position.set(
+                            (x - 2) * spacing,
+                            (y - 2) * spacing,
+                            (z - 2) * spacing
+                        );
+
+                        parentCube.add(smallCube);
+                    }
                 }
             }
+            return parentCube;
         }
 
-        scene.add(parentCube);
+        const cube1 = makeCube();
+        // const cube2 = makeCube();
+
+        // cube1.position.set(100,0,0);
+        // cube2.position.set(4,0,0);
+        
+
+
+        scene.add(cube1);
 
         const animate = () => {
             requestAnimationFrame(animate);
-            controls.update();
             renderer.render(scene, camera);
+<<<<<<< HEAD
 >>>>>>> a955b0b (add cube)
+=======
+            controls.update();
+>>>>>>> cb296d4 (feat : result display UI)
         };
+
         animate();
 
 <<<<<<< HEAD
@@ -259,12 +286,34 @@ const MagicCube: React.FC = () => {
 >>>>>>> a955b0b (add cube)
 =======
         return () => {
-            renderer.domElement.remove();
+            renderer.dispose();
+            if (containerRef.current) {
+                containerRef.current.removeChild(renderer.domElement);
+            }
         };
     }, []);
 
+<<<<<<< HEAD
     return null;
 >>>>>>> dd99b8b (add number in cube)
+=======
+    const resetCamera = () => {
+        if (cameraRef.current && controlsRef.current) {
+            cameraRef.current.position.copy(initialCameraPosition);
+            cameraRef.current.lookAt(0, 0, 0);
+            controlsRef.current.reset();
+        }
+    };
+
+    return (
+        <div>
+            <button onClick={resetCamera} style={{ position: 'absolute', top: '70px', left: '30px', zIndex: 1 , backgroundColor:'#000000',color:'#ffffff',padding:'8px',borderRadius:'10px'}}>
+                Reset View
+            </button>
+            <div ref={containerRef} />
+        </div>
+    );
+>>>>>>> cb296d4 (feat : result display UI)
 };
 
 export default MagicCube;
