@@ -1,5 +1,4 @@
 import random
-import math
 import copy
 import time
 
@@ -23,6 +22,17 @@ class Cube:
             for y in range(self.size):
                 for z in range(self.size):
                     grid[x][y][z] = numbers.pop(0)
+        return grid
+
+    def generate_grid_from_input(self, input_grid):
+        grid = [
+            [[0 for _ in range(self.size)] for _ in range(self.size)]
+            for _ in range(self.size)
+        ]
+        for x in range(self.size):
+            for y in range(self.size):
+                for z in range(self.size):
+                    grid[x][y][z] = input_grid[x][y][z]
         return grid
 
     def perfect_magic_cube(self):
@@ -198,7 +208,7 @@ class Cube:
 
         if current_deviation == 0:
             print("Already at global optimum")
-            return self.grid
+            return self.grid, current_deviation, 0
 
         for iteration in range(max_iterations):
             best_deviation = current_deviation
@@ -247,7 +257,8 @@ class Cube:
                     print("Reached local optimum")
                 break
 
-        return self.grid
+        print(self.grid, current_deviation, iteration + 1)
+        return self.grid, current_deviation, (iteration + 1)
 
 
 def main():
