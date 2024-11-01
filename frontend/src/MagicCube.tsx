@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -12,6 +13,13 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 // Define the type for the magic cube array
 const magicCubeArray: number[][][] = [
 >>>>>>> a955b0b (add cube)
+=======
+import React, { useEffect } from "react";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+const magic_cube = [
+>>>>>>> dd99b8b (add number in cube)
     [
         [25, 16, 80, 104, 90],
         [115, 98, 4, 1, 97],
@@ -50,6 +58,9 @@ const magicCubeArray: number[][][] = [
 ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> dd99b8b (add number in cube)
 function createNumberTexture(number: number): THREE.CanvasTexture {
     const size = 256;
     const canvas = document.createElement("canvas");
@@ -63,6 +74,7 @@ function createNumberTexture(number: number): THREE.CanvasTexture {
     context.fillText(number.toString(), size / 2, size / 2);
     return new THREE.CanvasTexture(canvas);
 }
+<<<<<<< HEAD
 
 const MagicCube: React.FC = () => {
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -143,70 +155,49 @@ const MagicCube: React.FC = () => {
 =======
 const MagicCube: React.FC = () => {
     const mountRef = useRef<HTMLDivElement>(null);
+=======
+>>>>>>> dd99b8b (add number in cube)
 
+const MagicCube: React.FC = () => {
     useEffect(() => {
         const w = window.innerWidth;
         const h = window.innerHeight;
 
-        // Set up the scene, camera, and renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(w, h);
+        document.body.appendChild(renderer.domElement);
+
+        const fov = 75;
+        const aspect = w / h;
+        const near = 0.1;
+        const far = 100;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.z = 10;
+
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xdee2e6);
 
-        const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 10);
-        camera.position.z = 5;
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(w, h);
-        if (mountRef.current) {
-            mountRef.current.appendChild(renderer.domElement);
-        }
-
-        // Add OrbitControls
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.03;
 
-        const parentCube = new THREE.Group();
         const cubeSize = 0.5;
         const spacing = 1;
+        const parentCube = new THREE.Group();
 
-        // Function to create a canvas texture for each number
-        function createNumberTexture(number: number): THREE.CanvasTexture {
-            const size = 256;
-            const canvas = document.createElement("canvas");
-            canvas.width = size;
-            canvas.height = size;
-            const context = canvas.getContext("2d");
-
-            if (context) {
-                context.clearRect(0, 0, size, size);
-                context.fillStyle = "#000000";
-                context.font = "bold 100px Arial";
-                context.textAlign = "center";
-                context.textBaseline = "middle";
-                context.fillText(number.toString(), size / 2, size / 2);
-            }
-
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        // Loop to create cubes and assign numbers from magicCubeArray
         for (let x = 0; x < 5; x++) {
             for (let y = 0; y < 5; y++) {
                 for (let z = 0; z < 5; z++) {
-                    const number = magicCubeArray[x][y][z];
+                    const number = magic_cube[x][y][z];
 
-                    const geo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-                    const mat = new THREE.MeshBasicMaterial({ color: 0x495057 });
-                    const smallCube = new THREE.Mesh(geo, mat);
-
+                    // Create a texture for each face
                     const numberTexture = createNumberTexture(number);
-                    const textMaterial = new THREE.MeshBasicMaterial({ map: numberTexture, transparent: true });
-                    const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.4), textMaterial);
+                    const faceMaterials = Array(6).fill(new THREE.MeshBasicMaterial({ map: numberTexture }));
 
-                    textPlane.position.set(0, 0, cubeSize / 2 + 0.01);
-                    smallCube.add(textPlane);
+                    // Create the cube with each face showing the number
+                    const smallCube = new THREE.Mesh(new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize), faceMaterials);
 
+                    // Position the cube in 3D space
                     smallCube.position.set(
                         (x - 2) * spacing,
                         (y - 2) * spacing,
@@ -220,16 +211,15 @@ const MagicCube: React.FC = () => {
 
         scene.add(parentCube);
 
-        // Animation loop
         const animate = () => {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
 >>>>>>> a955b0b (add cube)
         };
-
         animate();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         return () => {
             renderer.dispose();
@@ -267,6 +257,14 @@ const MagicCube: React.FC = () => {
 =======
     return <div ref={mountRef} style={{ width: "100vw", height: "100vh" }} />;
 >>>>>>> a955b0b (add cube)
+=======
+        return () => {
+            renderer.domElement.remove();
+        };
+    }, []);
+
+    return null;
+>>>>>>> dd99b8b (add number in cube)
 };
 
 export default MagicCube;
