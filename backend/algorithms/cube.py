@@ -1,7 +1,7 @@
 import random
 import copy
 import time
-
+from list import CustomList as cl
 
 class Cube:
     def __init__(self):
@@ -240,6 +240,64 @@ class Cube:
 
                                     # Update the best neighbor found
                                     if deviation < best_deviation:
+                                        best_deviation = deviation
+                                        best_grid = neighbor
+                                        found_improvement = True
+
+            # Move to the best neighbor if it's better than the current
+            if found_improvement and best_deviation < current_deviation:
+                self.grid = best_grid
+                current_deviation = best_deviation
+                print(f"Iteration {iteration + 1}: Deviation = {current_deviation}")
+            else:
+                # No improvement found, we may have reached a local optimum
+                if current_deviation == 0:
+                    print("Reached global optimum")
+                else:
+                    print("Reached local optimum")
+                break
+
+        print(self.grid, current_deviation, iteration + 1)
+        return self.grid, current_deviation, (iteration + 1)
+    
+    def sideways(self, max_iterations=1000):
+        current_deviation = self.evaluate_cube()
+        best_grid = copy.deepcopy(self.grid)  # Keep track of the best grid found
+
+        if current_deviation == 0:
+            print("Already at global optimum")
+            return self.grid, current_deviation, 0
+
+        for iteration in range(max_iterations):
+            best_deviation = current_deviation
+            found_improvement = False
+
+            # Generate all unique neighbors by swapping each unique pair of elements
+            for x1 in range(self.size):
+                for y1 in range(self.size):
+                    for z1 in range(self.size):
+                        for x2 in range(self.size):
+                            for y2 in range(self.size):
+                                for z2 in range(self.size):
+                                    if (x1, y1, z1) >= (
+                                        x2,
+                                        y2,
+                                        z2,
+                                    ):  # Avoid duplicate and self-swaps
+                                        continue
+
+                                    # Create a copy of the grid and perform the swap
+                                    neighbor = copy.deepcopy(self.grid)
+                                    neighbor[x1][y1][z1], neighbor[x2][y2][z2] = (
+                                        neighbor[x2][y2][z2],
+                                        neighbor[x1][y1][z1],
+                                    )
+
+                                    # Evaluate the neighbor
+                                    deviation = self.evaluate_cube_on_grid(neighbor)
+
+                                    # Update the best neighbor found
+                                    if deviation <= best_deviation:
                                         best_deviation = deviation
                                         best_grid = neighbor
                                         found_improvement = True
