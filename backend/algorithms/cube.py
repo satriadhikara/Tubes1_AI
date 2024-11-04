@@ -225,17 +225,22 @@ class Cube:
         for iteration in range(max_iterations):
             best_deviation = current_deviation
             found_improvement = False
+            x2_start = 0
+            y2_start = 0
+            z2_start = 1
 
-            # Generate all unique neighbors by swapping each unique pair of elements
-            for x1 in range(self.size):
-                for y1 in range(self.size):
-                    for z1 in range(self.size):
-                        for x2 in range(self.size):
-                            for y2 in range(self.size):
-                                for z2 in range(self.size):
-                                    if (x1, y1, z1) >= (x2, y2, z2):
-                                        continue
+            for x1 in range(0, 5):  # x1 mulai dari 0 hingga 3
+                for y1 in range(0, 5):  # y1 mulai dari 0 hingga 3
+                    for z1 in range(0, 5):  # z1 mulai dari 0 hingga 3
+                        # Hitung x2 dan y2 dari nilai awal
+                        x = (x2_start + x1) % 5
+                        y = (y2_start + y1) % 5
 
+                        # z2 dihitung berdasarkan z1 + 1
+                        z = (z2_start + z1) % 5
+                        for x2 in range(x, 5):
+                            for y2 in range(y, 5):
+                                for z2 in range(z, 5):
                                     neighbor = copy.deepcopy(self.grid)
                                     neighbor[x1][y1][z1], neighbor[x2][y2][z2] = (
                                         neighbor[x2][y2][z2],
