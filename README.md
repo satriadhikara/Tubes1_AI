@@ -18,7 +18,7 @@ A Diagonal Magic Cube is a variant of a magic cube in which every diagonal has t
 1. **Ensure** that you have [Node.js](https://nodejs.org/) and [Bun](https://bun.sh/) installed on your system.
 2. Clone this repository to your local directory:
    ```bash
-   git clone https://github.com/username/repository-name.git
+   git clone https://github.com/satriadhikara/Tubes1_AI.git
 
 ## Running the Program
 ### Running the Frontend
