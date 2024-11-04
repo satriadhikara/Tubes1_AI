@@ -13,6 +13,9 @@ def solve_cube(algorithm):
         grid, deviation, iterations, message, iterations_history = (
             cube.steepest_ascent_hill_climb()
         )
+
+    elif algorithm == "hc-sideways":
+        grid, deviation, iterations, message, iterations_history = cube.sideways()
     elif algorithm == "sa":
         grid, deviation, iterations, frequency, message, iterations_history = (
             cube.simulated_annealing()

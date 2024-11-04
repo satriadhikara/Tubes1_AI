@@ -1,8 +1,7 @@
 import random
 import copy
-import time
 import math
-from list import CustomList as cl
+from .list import CustomList as cl
 
 
 class Cube:
@@ -311,7 +310,10 @@ class Cube:
                                     deviation = self.evaluate_cube_on_grid(neighbor)
 
                                     # Update the best neighbor found
-                                    if deviation <= best_deviation and not past_cubes.isIn(neighbor):
+                                    if (
+                                        deviation <= best_deviation
+                                        and not past_cubes.isIn(neighbor)
+                                    ):
                                         best_deviation = deviation
                                         best_grid = neighbor
                                         found_improvement = True
@@ -322,7 +324,9 @@ class Cube:
                     past_cubes.reset()
                 self.grid = best_grid
                 current_deviation = best_deviation
-                print(f"Iteration {iteration + 1}: Deviation = {current_deviation}, Visited Cubes : {past_cubes.size}")
+                print(
+                    f"Iteration {iteration + 1}: Deviation = {current_deviation}, Visited Cubes : {past_cubes.size}"
+                )
                 iterations_history.append(
                     {"iteration": iteration + 1, "obj_value": current_deviation}
                 )
@@ -337,16 +341,14 @@ class Cube:
         return (
             self.grid,
             current_deviation,
-            (iteration+1),
+            (iteration + 1),
             message,
             iterations_history,
         )
-    
-    
-    
+
     def random_restart_hill_climb(self, max_restarts=10, max_iterations=1000):
         best_grid = None
-        best_deviation = float('inf')
+        best_deviation = float("inf")
         restart_count = 0
 
         while restart_count < max_restarts:
@@ -360,13 +362,17 @@ class Cube:
             print(f"Initial Deviation for this run: {current_deviation}")
 
             # Proses maju ke next state dengan steepest ascent hill climb
-            final_grid, final_deviation, iterations = self.steepest_ascent_hill_climb(max_iterations)
+            final_grid, final_deviation, iterations = self.steepest_ascent_hill_climb(
+                max_iterations
+            )
 
             # Check apakah current state (final) lebih baik dari best state
             if final_deviation < best_deviation:
                 best_deviation = final_deviation
                 best_grid = copy.deepcopy(final_grid)
-                print(f"New best deviation found: {best_deviation} after {restart_count} restarts")
+                print(
+                    f"New best deviation found: {best_deviation} after {restart_count} restarts"
+                )
 
             # Stop ketika global optimum sudah ditemukan
             if best_deviation == 0:
@@ -466,7 +472,7 @@ class Cube:
             message,
             iterations_history,
         )
-    
+
 
 # def main():
 #     cube = Cube()
@@ -477,6 +483,7 @@ class Cube:
 #     cube.sideways()
 #     end_time = time.time()
 #     print(f"Time taken: {end_time - start_time} seconds")
+
 
 # if __name__ == "__main__":
 #     main()

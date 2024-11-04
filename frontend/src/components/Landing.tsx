@@ -33,8 +33,11 @@ const Landing: React.FC<LandingProps> = ({
             <SelectItem key="hc_r" value="hc_r">
               HC Random Restart
             </SelectItem>
-            <SelectItem key="hc_s" value="hc_s">
+            <SelectItem key="hc-sideways" value="hc-sideways">
               HC Sideways Move
+            </SelectItem>
+            <SelectItem key="hc_s_r" value="hc_s_r">
+              HC Stochastic
             </SelectItem>
             <SelectItem key="sa" value="sa">
               Simulated Annealing
