@@ -1,7 +1,8 @@
 import random
 import copy
 import time
-from list import CustomList as cl
+import math
+
 
 class Cube:
     def __init__(self):
@@ -39,39 +40,39 @@ class Cube:
         # Kubus yang sudah optimal (dari web https://mathworld.wolfram.com/PerfectMagicCube.html)
         magic_cube = [
             [
-                [25, 16, 80, 104, 90],
-                [115, 98, 4, 1, 97],
-                [42, 111, 85, 2, 75],
-                [66, 72, 27, 102, 48],
-                [67, 18, 119, 106, 5],
+                [72, 48, 91, 35, 74],
+                [93, 57, 39, 92, 16],
+                [109, 103, 46, 18, 121],
+                [27, 8, 112, 104, 75],
+                [43, 58, 56, 99, 45],
             ],
             [
-                [91, 77, 71, 6, 70],
-                [52, 64, 117, 69, 13],
-                [30, 118, 21, 123, 23],
-                [26, 39, 92, 44, 114],
-                [116, 17, 14, 73, 95],
+                [66, 24, 80, 106, 29],
+                [111, 38, 23, 84, 59],
+                [88, 5, 124, 49, 64],
+                [90, 125, 60, 17, 47],
+                [1, 82, 14, 67, 123],
             ],
             [
-                [47, 61, 45, 76, 86],
-                [107, 43, 38, 33, 94],
-                [89, 68, 63, 58, 37],
-                [32, 93, 88, 83, 19],
-                [40, 50, 81, 65, 79],
+                [34, 110, 41, 6, 52],
+                [11, 113, 78, 115, 3],
+                [95, 42, 31, 116, 53],
+                [114, 4, 69, 20, 117],
+                [79, 19, 87, 68, 76],
             ],
             [
-                [31, 53, 112, 109, 10],
-                [12, 82, 34, 87, 100],
-                [103, 3, 105, 8, 96],
-                [113, 57, 9, 62, 74],
-                [56, 120, 55, 49, 35],
+                [102, 40, 9, 107, 105],
+                [15, 44, 122, 2, 108],
+                [25, 70, 97, 50, 54],
+                [33, 85, 51, 94, 30],
+                [83, 62, 37, 96, 13],
             ],
             [
-                [121, 108, 7, 20, 59],
-                [29, 28, 122, 125, 11],
-                [51, 15, 41, 124, 84],
-                [78, 54, 99, 24, 60],
-                [36, 110, 46, 22, 101],
+                [71, 55, 100, 28, 86],
+                [77, 32, 81, 7, 119],
+                [12, 65, 36, 98, 63],
+                [26, 118, 10, 120, 22],
+                [73, 101, 89, 21, 61],
             ],
         ]
 
@@ -204,11 +205,13 @@ class Cube:
 
     def steepest_ascent_hill_climb(self, max_iterations=1000):
         current_deviation = self.evaluate_cube()
-        best_grid = copy.deepcopy(self.grid)  # Keep track of the best grid found
+        best_grid = copy.deepcopy(self.grid)
+        message = ""
+        iterations_history = [{"iteration": 0, "obj_value": current_deviation}]
 
         if current_deviation == 0:
-            print("Already at global optimum")
-            return self.grid, current_deviation, 0
+            message = "Already at global optimum"
+            return self.grid, current_deviation, 0, message, iterations_history
 
         for iteration in range(max_iterations):
             best_deviation = current_deviation
@@ -221,45 +224,44 @@ class Cube:
                         for x2 in range(self.size):
                             for y2 in range(self.size):
                                 for z2 in range(self.size):
-                                    if (x1, y1, z1) >= (
-                                        x2,
-                                        y2,
-                                        z2,
-                                    ):  # Avoid duplicate and self-swaps
+                                    if (x1, y1, z1) >= (x2, y2, z2):
                                         continue
 
-                                    # Create a copy of the grid and perform the swap
                                     neighbor = copy.deepcopy(self.grid)
                                     neighbor[x1][y1][z1], neighbor[x2][y2][z2] = (
                                         neighbor[x2][y2][z2],
                                         neighbor[x1][y1][z1],
                                     )
 
-                                    # Evaluate the neighbor
                                     deviation = self.evaluate_cube_on_grid(neighbor)
 
-                                    # Update the best neighbor found
                                     if deviation < best_deviation:
                                         best_deviation = deviation
                                         best_grid = neighbor
                                         found_improvement = True
 
-            # Move to the best neighbor if it's better than the current
             if found_improvement and best_deviation < current_deviation:
                 self.grid = best_grid
                 current_deviation = best_deviation
                 print(f"Iteration {iteration + 1}: Deviation = {current_deviation}")
+                iterations_history.append(
+                    {"iteration": iteration + 1, "obj_value": current_deviation}
+                )
             else:
-                # No improvement found, we may have reached a local optimum
                 if current_deviation == 0:
-                    print("Reached global optimum")
+                    message = "Reached global optimum"
                 else:
-                    print("Reached local optimum")
+                    message = "Reached local optimum"
                 break
 
-        print(self.grid, current_deviation, iteration + 1)
-        return self.grid, current_deviation, (iteration + 1)
-    
+        return (
+            self.grid,
+            current_deviation,
+            (iteration + 1),
+            message,
+            iterations_history,
+        )
+
     def sideways(self, max_iterations=1000):
         current_deviation = self.evaluate_cube()
         best_grid = copy.deepcopy(self.grid)  # Keep track of the best grid found
@@ -318,17 +320,88 @@ class Cube:
         print(self.grid, current_deviation, iteration + 1)
         return self.grid, current_deviation, (iteration + 1)
 
+    def simulated_annealing(
+        self,
+        initial_temp=10000,
+        min_temp=0.1,
+        cooling_rate=0.99995,
+    ):
+        current_grid = copy.deepcopy(self.grid)
+        current_deviation = self.evaluate_cube()
+        temperature = initial_temp
+        iteration = 0
+        frequency = 0
+        message = ""
+        iterations_history = []
 
-def main():
-    cube = Cube()
-    print("Initial Deviation:", cube.evaluate_cube())
+        while temperature > min_temp:
+            # Generate a neighbor by swapping two random elements
+            neighbor_grid = copy.deepcopy(current_grid)
+            x1, y1, z1 = (
+                random.randint(0, self.size - 1),
+                random.randint(0, self.size - 1),
+                random.randint(0, self.size - 1),
+            )
+            x2, y2, z2 = (
+                random.randint(0, self.size - 1),
+                random.randint(0, self.size - 1),
+                random.randint(0, self.size - 1),
+            )
 
-    start_time = time.time()
-    cube.steepest_ascent_hill_climb()
-    end_time = time.time()
+            # Swap two values in the neighbor grid
+            neighbor_grid[x1][y1][z1], neighbor_grid[x2][y2][z2] = (
+                neighbor_grid[x2][y2][z2],
+                neighbor_grid[x1][y1][z1],
+            )
 
-    print(f"Time taken: {end_time - start_time} seconds")
+            # Evaluate the neighbor's deviation
+            self.grid = neighbor_grid
+            neighbor_deviation = self.evaluate_cube()
+            self.grid = current_grid
 
+            # Calculate the change in deviation (energy difference)
+            delta = neighbor_deviation - current_deviation
 
-if __name__ == "__main__":
-    main()
+            # Decide whether to accept the neighbor
+            if delta < 0:
+                current_grid = neighbor_grid
+                current_deviation = neighbor_deviation
+                iterations_history.append({"iteration": iteration + 1, "eET": 1})
+            else:
+                frequency += 1
+                acceptance_probability = math.exp(-delta / temperature)
+                if random.random() < acceptance_probability:
+                    current_grid = neighbor_grid
+                    current_deviation = neighbor_deviation
+                iterations_history.append(
+                    {
+                        "iteration": iteration + 1,
+                        "eET": round(acceptance_probability, 2),
+                    }
+                )
+
+            temperature *= cooling_rate
+
+            print(
+                f"Iteration {iteration + 1}, Temperature = {temperature:.2f}, "
+                f"Deviation = {current_deviation}"
+            )
+
+            iteration += 1
+
+        if current_deviation == 0:
+            message = "Reached global optimum"
+        else:
+            message = "Reached minimum temperature"
+
+        # Update the grid to the best configuration found
+        self.grid = current_grid
+
+        return (
+            copy.deepcopy(current_grid),
+            current_deviation,
+            iteration,
+            frequency,
+            message,
+            iterations_history,
+        )
