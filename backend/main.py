@@ -48,7 +48,9 @@ class SearchResponseHC(SearchResponse):
 
 
 class SearchResponseGA(SearchResponse):
-    population: list[list[list[int]]]
+    population: int
+    max_fitness_history: list[int]
+    avg_fitness_history: list[float]
 
 
 class SearchResponseSA(SearchResponse):
@@ -84,6 +86,8 @@ def search(
         iterations_history,
         restart_count,
         iterations_per_restart,
+        max_fitness_history,
+        avg_fitness_history,
     ) = solve_cube(
         req.algorithm,
     )
@@ -133,6 +137,19 @@ def search(
             iterations_history=iterations_history,
             restart_count=restart_count,
             iterations_per_restart=iterations_per_restart,
+        )
+    elif req.algorithm == "ga":
+        return SearchResponseGA(
+            message=message,
+            initial_obj_value=initial_obj_value,
+            final_obj_value=total_deviation,
+            iterations=iterations,
+            time=time,
+            final_state=final_state,
+            population=population,
+            initial_state=initial_state,
+            max_fitness_history=max_fitness_history,
+            avg_fitness_history=avg_fitness_history,
         )
     elif req.algorithm == "sa":
         return SearchResponseSA(

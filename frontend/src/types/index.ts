@@ -19,6 +19,9 @@ export interface SearchResponse {
   frequency?: number;
   restart_count?: number;
   iterations_per_restart?: number[];
+  population?: number;
+  max_fitness_history?: number[];
+  avg_fitness_history?: number[];
 }
 
 export interface ResultsProps {
@@ -34,6 +37,9 @@ export interface ResultsProps {
   frequency?: number;
   restart_count?: number;
   iterations_per_restart?: number[];
+  population?: number;
+  max_fitness_history?: number[];
+  avg_fitness_history?: number[];
 }
 
 export interface LandingProps {

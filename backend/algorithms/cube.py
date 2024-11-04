@@ -416,11 +416,15 @@ class Cube:
             iterations_history,
         )
 
-    def genetic_algorithm(self, population_size, iterations):
+    def genetic_algorithm(self, population_size=50, iterations=1000):
         # Generate initial population
         population = [self.generate_grid() for _ in range(population_size)]
 
-        # Evaluate initial state (first individual in population)
+        # Track fitness history
+        max_fitness_history = []
+        avg_fitness_history = []
+
+        # Evaluate initial state
         initial_state = copy.deepcopy(population[0])
         initial_fitness = self.evaluate_cube_on_grid(initial_state)
 
@@ -433,18 +437,26 @@ class Cube:
                 (self.evaluate_cube_on_grid(individual), individual)
                 for individual in population
             ]
-            fitness_scores.sort(key=lambda x: x[0])  # Sort by fitness (lower is better)
+            fitness_scores.sort(key=lambda x: x[0])
 
-            # Keep track of the best solution
+            # Calculate and store fitness statistics
+            current_fitness_values = [score[0] for score in fitness_scores]
+            max_fitness = max(current_fitness_values)
+            avg_fitness = sum(current_fitness_values) / len(current_fitness_values)
+
+            max_fitness_history.append(max_fitness)
+            avg_fitness_history.append(avg_fitness)
+
+            # Keep track of best solution
             if fitness_scores[0][0] < best_fitness:
                 best_fitness, best_individual = fitness_scores[0]
 
-            # Selection: Take the top half of the population
+            # Selection
             selected_population = [
                 individual for _, individual in fitness_scores[: population_size // 2]
             ]
 
-            # Crossover and mutation to produce the next generation
+            # Crossover and mutation
             next_population = []
             while len(next_population) < population_size:
                 parent1 = random.choice(selected_population)
@@ -453,23 +465,21 @@ class Cube:
                 child = self.mutate(child)
                 next_population.append(child)
 
-            # Update population
             population = next_population
 
-        # Final output
         final_state = best_individual
         final_fitness = best_fitness
 
-        # Print initial and final states and fitness values
-        print("Initial State:")
-        self.output_grid(initial_state)
-        print("Initial Fitness (Objective Function):", initial_fitness)
-        print("\nFinal State:")
-        self.output_grid(final_state)
-        print("Final Fitness (Objective Function):", final_fitness)
-
-        # Return outputs as requested
-        return initial_state, final_state, final_fitness
+        # Return with fitness histories and total iterations
+        return (
+            initial_state,
+            final_state,
+            population_size,
+            iterations,  # Added total iterations
+            final_fitness,
+            max_fitness_history,
+            avg_fitness_history,
+        )
 
     def crossover(self, parent1, parent2):
         child = [

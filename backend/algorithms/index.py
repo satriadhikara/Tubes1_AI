@@ -7,10 +7,14 @@ def solve_cube(algorithm):
     initial_state = cube.grid
     initial_obj_value = cube.evaluate_cube()
     start_time = time.time()
+    message = ""
     frequency = None
     population = None
     restart_count = None
     iterations_per_restart = None
+    iterations_history = None
+    max_fitness_history = None
+    avg_fitness_history = None
     if algorithm == "hc":
         grid, deviation, iterations, message, iterations_history = (
             cube.steepest_ascent_hill_climb()
@@ -37,6 +41,18 @@ def solve_cube(algorithm):
         grid, deviation, iterations, frequency, message, iterations_history = (
             cube.simulated_annealing()
         )
+    elif algorithm == "ga":
+        (
+            ga_initial_state,
+            final_state,
+            population,
+            iterations,
+            deviation,
+            max_fitness_history,
+            avg_fitness_history,
+        ) = cube.genetic_algorithm()
+        initial_state = ga_initial_state
+        grid = final_state
     end_time = time.time()
 
     return (
@@ -52,4 +68,6 @@ def solve_cube(algorithm):
         iterations_history,
         restart_count,
         iterations_per_restart,
+        max_fitness_history,
+        avg_fitness_history,
     )

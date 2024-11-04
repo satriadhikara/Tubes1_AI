@@ -41,6 +41,9 @@ const Results: React.FC<ResultsProps> = ({
   frequency,
   restart_count,
   iterations_per_restart,
+  population,
+  max_fitness_history,
+  avg_fitness_history,
 }) => {
   const chartOptions: ChartOptions<"line"> = {
     responsive: true,
@@ -133,37 +136,76 @@ const Results: React.FC<ResultsProps> = ({
                 Iterations in Restart {idx + 1}: {iter}
               </div>
             ))}
+          {population && <div>Population Size: {population}</div>}
         </div>
 
         <div className="bg-gray-800/50 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">
-            Plot of {algorithm === "sa" ? "e^(-ΔE/T) " : "Objective Value "}
+            Plot of{" "}
+            {algorithm === "ga"
+              ? "Fitness Values"
+              : algorithm === "sa"
+              ? "e^(-ΔE/T) "
+              : "Objective Value "}
             vs Iteration
           </h2>
           <div className="h-[400px]">
-            <Line
-              data={{
-                labels: iterations_history.map((h) => h.iteration),
-                datasets: [
-                  {
-                    label: algorithm === "sa" ? "e^(-ΔE/T)" : "Objective Value",
-                    data:
-                      algorithm === "sa"
-                        ? (iterations_history as Iterations_history_sa[]).map(
-                            (h) => h.eET
-                          )
-                        : (iterations_history as Iterations_history[]).map(
-                            (h) => h.obj_value
-                          ),
-                    borderColor: "#3b82f6",
-                    backgroundColor: "rgba(59, 130, 246, 0.1)",
-                    tension: 0.1,
-                    fill: true,
-                  },
-                ],
-              }}
-              options={chartOptions}
-            />
+            <div className="h-[400px]">
+              {algorithm === "ga" ? (
+                <Line
+                  data={{
+                    labels: Array.from(
+                      { length: max_fitness_history!.length },
+                      (_, i) => i + 1
+                    ),
+                    datasets: [
+                      {
+                        label: "Max Objective Function",
+                        data: max_fitness_history,
+                        borderColor: "#3b82f6",
+                        backgroundColor: "rgba(59, 130, 246, 0.1)",
+                        tension: 0.1,
+                        fill: true,
+                      },
+                      {
+                        label: "Average Objective Function",
+                        data: avg_fitness_history,
+                        borderColor: "#34d399",
+                        backgroundColor: "rgba(52, 211, 153, 0.1)",
+                        tension: 0.1,
+                        fill: true,
+                      },
+                    ],
+                  }}
+                  options={chartOptions}
+                />
+              ) : (
+                <Line
+                  data={{
+                    labels: iterations_history.map((h) => h.iteration),
+                    datasets: [
+                      {
+                        label:
+                          algorithm === "sa" ? "e^(-ΔE/T)" : "Objective Value",
+                        data:
+                          algorithm === "sa"
+                            ? (
+                                iterations_history as Iterations_history_sa[]
+                              ).map((h) => h.eET)
+                            : (iterations_history as Iterations_history[]).map(
+                                (h) => h.obj_value
+                              ),
+                        borderColor: "#3b82f6",
+                        backgroundColor: "rgba(59, 130, 246, 0.1)",
+                        tension: 0.1,
+                        fill: true,
+                      },
+                    ],
+                  }}
+                  options={chartOptions}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

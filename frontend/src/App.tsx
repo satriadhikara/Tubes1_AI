@@ -46,6 +46,9 @@ const App = () => {
         frequency={data.frequency}
         restart_count={data.restart_count}
         iterations_per_restart={data.iterations_per_restart}
+        population={data.population}
+        max_fitness_history={data.max_fitness_history}
+        avg_fitness_history={data.avg_fitness_history}
       />
     );
   }
