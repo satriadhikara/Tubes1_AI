@@ -2,7 +2,6 @@ import random
 import copy
 import time
 
-
 class Cube:
     def __init__(self):
         self.size = 5  # Ukuran kubus
@@ -259,18 +258,314 @@ class Cube:
 
         print(self.grid, current_deviation, iteration + 1)
         return self.grid, current_deviation, (iteration + 1)
+    
+    def stochastic_hill_climb(self, max_iterations=1000, max_attempts=100):
+        current_deviation = self.evaluate_cube()
+        best_grid = copy.deepcopy(self.grid)
 
+        if current_deviation == 0:
+            print("Already at global optimum")
+            return self.grid, current_deviation, 0
+
+        for iteration in range(max_iterations):
+            found_improvement = False
+
+            for attempt in range(max_attempts):
+                # Pilih dua titik acak dalam grid untuk melakukan swap
+                x1, y1, z1 = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+                x2, y2, z2 = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+
+                # Hindari swap dengan elemen yang sama
+                while (x1, y1, z1) == (x2, y2, z2):
+                    x2, y2, z2 = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+
+                # Lakukan swap di grid baru
+                neighbor = copy.deepcopy(self.grid)
+                neighbor[x1][y1][z1], neighbor[x2][y2][z2] = neighbor[x2][y2][z2], neighbor[x1][y1][z1]
+
+                # Evaluasi tetangga
+                deviation = self.evaluate_cube_on_grid(neighbor)
+
+                # Jika tetangga lebih baik, pindah ke tetangga tersebut
+                if deviation < current_deviation:
+                    self.grid = neighbor
+                    current_deviation = deviation
+                    found_improvement = True
+                    print(f"Iteration {iteration + 1}, Attempt {attempt + 1}: Deviation = {current_deviation}")
+                    break  # Lanjut ke iterasi berikutnya
+
+            # Jika tidak ada perbaikan ditemukan, maka berhenti
+            if not found_improvement:
+                print("Reached local optimum")
+                break
+
+            # Jika mencapai global optimum, hentikan
+            if current_deviation == 0:
+                print("Reached global optimum")
+                break
+
+        print(self.grid, current_deviation, iteration + 1)
+        return self.grid, current_deviation, (iteration + 1)
+
+    def genetic_algorithm(self, population_size, iterations):
+        # Generate initial population
+        population = [self.generate_grid() for _ in range(population_size)]
+        
+        # Evaluate initial state (first individual in population)
+        initial_state = copy.deepcopy(population[0])
+        initial_fitness = self.evaluate_cube_on_grid(initial_state)
+
+        best_fitness = float("inf")
+        best_individual = None
+
+        for iteration in range(iterations):
+            # Evaluate fitness of each individual
+            fitness_scores = [(self.evaluate_cube_on_grid(individual), individual) for individual in population]
+            fitness_scores.sort(key=lambda x: x[0])  # Sort by fitness (lower is better)
+
+            # Keep track of the best solution
+            if fitness_scores[0][0] < best_fitness:
+                best_fitness, best_individual = fitness_scores[0]
+
+            # Selection: Take the top half of the population
+            selected_population = [individual for _, individual in fitness_scores[:population_size // 2]]
+
+            # Crossover and mutation to produce the next generation
+            next_population = []
+            while len(next_population) < population_size:
+                parent1 = random.choice(selected_population)
+                parent2 = random.choice(selected_population)
+                child = self.crossover(parent1, parent2)
+                child = self.mutate(child)
+                next_population.append(child)
+
+            # Update population
+            population = next_population
+
+        # Final output
+        final_state = best_individual
+        final_fitness = best_fitness
+
+        # Print initial and final states and fitness values
+        print("Initial State:")
+        self.output_grid(initial_state)
+        print("Initial Fitness (Objective Function):", initial_fitness)
+        print("\nFinal State:")
+        self.output_grid(final_state)
+        print("Final Fitness (Objective Function):", final_fitness)
+
+        # Return outputs as requested
+        return initial_state, final_state, final_fitness
+
+    # def crossover(self, parent1, parent2):
+    #     child = [[[0 for _ in range(self.size)] for _ in range(self.size)] for _ in range(self.size)]
+    #     for x in range(self.size):
+    #         for y in range(self.size):
+    #             for z in range(self.size):
+    #                 child[x][y][z] = parent1[x][y][z] if random.random() < 0.5 else parent2[x][y][z]
+    #     return child
+
+    # def mutate(self, grid, mutation_rate=0.01):
+    #     for x in range(self.size):
+    #         for y in range(self.size):
+    #             for z in range(self.size):
+    #                 if random.random() < mutation_rate:
+    #                     a, b, c = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+    #                     grid[x][y][z], grid[a][b][c] = grid[a][b][c], grid[x][y][z]
+    #     return grid
+
+    def output_grid(self, grid):
+        for x in range(self.size):
+            print(f"Layer {x + 1}:")
+            for y in range(self.size):
+                print(" ".join(f"{grid[x][y][z]:3}" for z in range(self.size)))
+            print()
+
+    def genetic_algorithm(self, population_size, iterations):
+        # Generate initial population
+        population = [self.generate_grid() for _ in range(population_size)]
+        
+        # Evaluate initial state (first individual in population)
+        initial_state = copy.deepcopy(population[0])
+        initial_fitness = self.evaluate_cube_on_grid(initial_state)
+
+        best_fitness = float("inf")
+        best_individual = None
+
+        for iteration in range(iterations):
+            # Evaluate fitness of each individual
+            fitness_scores = [(self.evaluate_cube_on_grid(individual), individual) for individual in population]
+            fitness_scores.sort(key=lambda x: x[0])  # Sort by fitness (lower is better)
+
+            # Keep track of the best solution
+            if fitness_scores[0][0] < best_fitness:
+                best_fitness, best_individual = fitness_scores[0]
+
+            # Selection: Take the top half of the population
+            selected_population = [individual for _, individual in fitness_scores[:population_size // 2]]
+
+            # Crossover and mutation to produce the next generation
+            next_population = []
+            while len(next_population) < population_size:
+                parent1 = random.choice(selected_population)
+                parent2 = random.choice(selected_population)
+                child = self.crossover(parent1, parent2)
+                child = self.mutate(child)
+                next_population.append(child)
+
+            # Update population
+            population = next_population
+
+        # Final output
+        final_state = best_individual
+        final_fitness = best_fitness
+
+        # Print initial and final states and fitness values
+        print("Initial State:")
+        self.output_grid(initial_state)
+        print("Initial Fitness (Objective Function):", initial_fitness)
+        print("\nFinal State:")
+        self.output_grid(final_state)
+        print("Final Fitness (Objective Function):", final_fitness)
+
+        # Return outputs as requested
+        return initial_state, final_state, final_fitness
+
+    def crossover(self, parent1, parent2):
+        child = [[[0 for _ in range(self.size)] for _ in range(self.size)] for _ in range(self.size)]
+        for x in range(self.size):
+            for y in range(self.size):
+                for z in range(self.size):
+                    child[x][y][z] = parent1[x][y][z] if random.random() < 0.5 else parent2[x][y][z]
+        return child
+
+    def mutate(self, grid, mutation_rate=0.01):
+        # Lakukan mutasi hanya jika acak di bawah mutation_rate
+        if random.random() < mutation_rate:
+            # Pilih lima posisi acak dalam kubus
+            positions = [(random.randint(0, self.size - 1),
+                        random.randint(0, self.size - 1),
+                        random.randint(0, self.size - 1)) for _ in range(5)]
+
+            # Simpan nilai dari posisi pertama untuk rotasi melingkar
+            temp = grid[positions[0][0]][positions[0][1]][positions[0][2]]
+
+            # Rotasi nilai secara melingkar
+            for i in range(4):
+                grid[positions[i][0]][positions[i][1]][positions[i][2]] = grid[positions[i + 1][0]][positions[i + 1][1]][positions[i + 1][2]]
+            
+            # Tempatkan nilai awal pada posisi kelima
+            grid[positions[4][0]][positions[4][1]][positions[4][2]] = temp
+
+        return grid
+
+
+    def output_grid(self, grid):
+        for x in range(self.size):
+            print(f"Layer {x + 1}:")
+            for y in range(self.size):
+                print(" ".join(f"{grid[x][y][z]:3}" for z in range(self.size)))
+            print()
+
+    def genetic_algorithm(self, population_size, iterations):
+        # Generate initial population
+        population = [self.generate_grid() for _ in range(population_size)]
+        
+        # Evaluate initial state (first individual in population)
+        initial_state = copy.deepcopy(population[0])
+        initial_fitness = self.evaluate_cube_on_grid(initial_state)
+
+        best_fitness = float("inf")
+        best_individual = None
+
+        for iteration in range(iterations):
+            # Evaluate fitness of each individual
+            fitness_scores = [(self.evaluate_cube_on_grid(individual), individual) for individual in population]
+            fitness_scores.sort(key=lambda x: x[0])  # Sort by fitness (lower is better)
+
+            # Keep track of the best solution
+            if fitness_scores[0][0] < best_fitness:
+                best_fitness, best_individual = fitness_scores[0]
+
+            # Selection: Take the top half of the population
+            selected_population = [individual for _, individual in fitness_scores[:population_size // 2]]
+
+            # Crossover and mutation to produce the next generation
+            next_population = []
+            while len(next_population) < population_size:
+                parent1 = random.choice(selected_population)
+                parent2 = random.choice(selected_population)
+                child = self.crossover(parent1, parent2)
+                child = self.mutate(child)
+                next_population.append(child)
+
+            # Update population
+            population = next_population
+
+        # Final output
+        final_state = best_individual
+        final_fitness = best_fitness
+
+        # Print initial and final states and fitness values
+        print("Initial State:")
+        self.output_grid(initial_state)
+        print("Initial Fitness (Objective Function):", initial_fitness)
+        print("\nFinal State:")
+        self.output_grid(final_state)
+        print("Final Fitness (Objective Function):", final_fitness)
+
+        # Return outputs as requested
+        return initial_state, final_state, final_fitness
+
+    def crossover(self, parent1, parent2):
+        child = [[[0 for _ in range(self.size)] for _ in range(self.size)] for _ in range(self.size)]
+        for x in range(self.size):
+            for y in range(self.size):
+                for z in range(self.size):
+                    child[x][y][z] = parent1[x][y][z] if random.random() < 0.5 else parent2[x][y][z]
+        return child
+
+    def mutate(self, grid, mutation_rate=0.01):
+        for x in range(self.size):
+            for y in range(self.size):
+                for z in range(self.size):
+                    if random.random() < mutation_rate:
+                        a, b, c = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+                        grid[x][y][z], grid[a][b][c] = grid[a][b][c], grid[x][y][z]
+        return grid
+
+    def output_grid(self, grid):
+        for x in range(self.size):
+            print(f"Layer {x + 1}:")
+            for y in range(self.size):
+                print(" ".join(f"{grid[x][y][z]:3}" for z in range(self.size)))
+            print()
+
+def get_user_input():
+    population_size = int(input("Enter the population size: "))
+    iterations = int(input("Enter the number of iterations: "))
+    return population_size, iterations
+    
+
+# def main():
+#     cube = Cube()
+#     print("Initial Deviation:", cube.evaluate_cube())
+
+#     start_time = time.time()
+#     cube.stochastic_hill_climb()
+#     end_time = time.time()
+
+#     print(f"Time taken: {end_time - start_time} seconds")
 
 def main():
+    # Get user input
+    population_size, iterations = get_user_input()
+
+    # Create an instance of Cube
     cube = Cube()
-    print("Initial Deviation:", cube.evaluate_cube())
 
-    start_time = time.time()
-    cube.steepest_ascent_hill_climb()
-    end_time = time.time()
-
-    print(f"Time taken: {end_time - start_time} seconds")
-
+    # Run the genetic algorithm
+    initial_state, final_state, final_fitness = cube.genetic_algorithm(population_size, iterations)
 
 if __name__ == "__main__":
     main()
