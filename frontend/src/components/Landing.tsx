@@ -36,7 +36,7 @@ const Landing: React.FC<LandingProps> = ({
             <SelectItem key="hc-sideways" value="hc-sideways">
               HC Sideways Move
             </SelectItem>
-            <SelectItem key="hc_s_r" value="hc_s_r">
+            <SelectItem key="hc-stochastic" value="hc-stochastic">
               HC Stochastic
             </SelectItem>
             <SelectItem key="sa" value="sa">

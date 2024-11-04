@@ -15,6 +15,10 @@ def solve_cube(algorithm):
         grid, deviation, iterations, message, iterations_history = (
             cube.steepest_ascent_hill_climb()
         )
+    elif algorithm == "hc-stochastic":
+        grid, deviation, iterations, message, iterations_history = (
+            cube.stochastic_hill_climb()
+        )
     elif algorithm == "hc-sideways":
         grid, deviation, iterations, message, iterations_history = cube.sideways()
     elif algorithm == "hc-random-restart":

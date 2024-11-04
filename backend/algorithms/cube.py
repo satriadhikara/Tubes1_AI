@@ -3,6 +3,7 @@ import copy
 import math
 from .list import CustomList as cl
 
+
 class Cube:
     def __init__(self):
         self.size = 5  # Ukuran kubus
@@ -344,59 +345,81 @@ class Cube:
             message,
             iterations_history,
         )
-    
+
     def stochastic_hill_climb(self, max_iterations=1000, max_attempts=100):
         current_deviation = self.evaluate_cube()
-        best_grid = copy.deepcopy(self.grid)
+        # best_grid = copy.deepcopy(self.grid)
+        message = ""
+        iterations_history = [{"iteration": 0, "obj_value": current_deviation}]
 
         if current_deviation == 0:
-            print("Already at global optimum")
-            return self.grid, current_deviation, 0
+            message = "Already at global optimum"
+            return self.grid, current_deviation, 0, message, iterations_history
 
         for iteration in range(max_iterations):
             found_improvement = False
 
             for attempt in range(max_attempts):
-                # Pilih dua titik acak dalam grid untuk melakukan swap
-                x1, y1, z1 = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
-                x2, y2, z2 = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+                # Random point selection for swap
+                x1, y1, z1 = (
+                    random.randint(0, self.size - 1),
+                    random.randint(0, self.size - 1),
+                    random.randint(0, self.size - 1),
+                )
+                x2, y2, z2 = (
+                    random.randint(0, self.size - 1),
+                    random.randint(0, self.size - 1),
+                    random.randint(0, self.size - 1),
+                )
 
-                # Hindari swap dengan elemen yang sama
+                # Avoid self-swaps
                 while (x1, y1, z1) == (x2, y2, z2):
-                    x2, y2, z2 = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+                    x2, y2, z2 = (
+                        random.randint(0, self.size - 1),
+                        random.randint(0, self.size - 1),
+                        random.randint(0, self.size - 1),
+                    )
 
-                # Lakukan swap di grid baru
                 neighbor = copy.deepcopy(self.grid)
-                neighbor[x1][y1][z1], neighbor[x2][y2][z2] = neighbor[x2][y2][z2], neighbor[x1][y1][z1]
+                neighbor[x1][y1][z1], neighbor[x2][y2][z2] = (
+                    neighbor[x2][y2][z2],
+                    neighbor[x1][y1][z1],
+                )
 
-                # Evaluasi tetangga
                 deviation = self.evaluate_cube_on_grid(neighbor)
 
-                # Jika tetangga lebih baik, pindah ke tetangga tersebut
                 if deviation < current_deviation:
                     self.grid = neighbor
                     current_deviation = deviation
                     found_improvement = True
-                    print(f"Iteration {iteration + 1}, Attempt {attempt + 1}: Deviation = {current_deviation}")
-                    break  # Lanjut ke iterasi berikutnya
+                    iterations_history.append(
+                        {"iteration": iteration + 1, "obj_value": current_deviation}
+                    )
+                    print(
+                        f"Iteration {iteration + 1}, Attempt {attempt + 1}: Deviation = {current_deviation}"
+                    )
+                    break
 
-            # Jika tidak ada perbaikan ditemukan, maka berhenti
             if not found_improvement:
-                print("Reached local optimum")
+                message = "Reached local optimum"
                 break
 
-            # Jika mencapai global optimum, hentikan
             if current_deviation == 0:
-                print("Reached global optimum")
+                message = "Reached global optimum"
                 break
 
-        print(self.grid, current_deviation, iteration + 1)
-        return self.grid, current_deviation, (iteration + 1)
+        return (
+            self.grid,
+            current_deviation,
+            (iteration + 1),
+            message,
+            iterations_history,
+        )
 
     def genetic_algorithm(self, population_size, iterations):
         # Generate initial population
         population = [self.generate_grid() for _ in range(population_size)]
-        
+
         # Evaluate initial state (first individual in population)
         initial_state = copy.deepcopy(population[0])
         initial_fitness = self.evaluate_cube_on_grid(initial_state)
@@ -406,7 +429,10 @@ class Cube:
 
         for iteration in range(iterations):
             # Evaluate fitness of each individual
-            fitness_scores = [(self.evaluate_cube_on_grid(individual), individual) for individual in population]
+            fitness_scores = [
+                (self.evaluate_cube_on_grid(individual), individual)
+                for individual in population
+            ]
             fitness_scores.sort(key=lambda x: x[0])  # Sort by fitness (lower is better)
 
             # Keep track of the best solution
@@ -414,7 +440,9 @@ class Cube:
                 best_fitness, best_individual = fitness_scores[0]
 
             # Selection: Take the top half of the population
-            selected_population = [individual for _, individual in fitness_scores[:population_size // 2]]
+            selected_population = [
+                individual for _, individual in fitness_scores[: population_size // 2]
+            ]
 
             # Crossover and mutation to produce the next generation
             next_population = []
@@ -444,11 +472,16 @@ class Cube:
         return initial_state, final_state, final_fitness
 
     def crossover(self, parent1, parent2):
-        child = [[[0 for _ in range(self.size)] for _ in range(self.size)] for _ in range(self.size)]
+        child = [
+            [[0 for _ in range(self.size)] for _ in range(self.size)]
+            for _ in range(self.size)
+        ]
         for x in range(self.size):
             for y in range(self.size):
                 for z in range(self.size):
-                    child[x][y][z] = parent1[x][y][z] if random.random() < 0.5 else parent2[x][y][z]
+                    child[x][y][z] = (
+                        parent1[x][y][z] if random.random() < 0.5 else parent2[x][y][z]
+                    )
         return child
 
     def mutate(self, grid, mutation_rate=0.01):
@@ -456,7 +489,11 @@ class Cube:
             for y in range(self.size):
                 for z in range(self.size):
                     if random.random() < mutation_rate:
-                        a, b, c = random.randint(0, self.size - 1), random.randint(0, self.size - 1), random.randint(0, self.size - 1)
+                        a, b, c = (
+                            random.randint(0, self.size - 1),
+                            random.randint(0, self.size - 1),
+                            random.randint(0, self.size - 1),
+                        )
                         grid[x][y][z], grid[a][b][c] = grid[a][b][c], grid[x][y][z]
         return grid
 
@@ -467,34 +504,33 @@ class Cube:
                 print(" ".join(f"{grid[x][y][z]:3}" for z in range(self.size)))
             print()
 
-# def get_user_input():
-#     population_size = int(input("Enter the population size: "))
-#     iterations = int(input("Enter the number of iterations: "))
-#     return population_size, iterations
-    
+    # def get_user_input():
+    #     population_size = int(input("Enter the population size: "))
+    #     iterations = int(input("Enter the number of iterations: "))
+    #     return population_size, iterations
 
-# def main():
-#     cube = Cube()
-#     print("Initial Deviation:", cube.evaluate_cube())
+    # def main():
+    #     cube = Cube()
+    #     print("Initial Deviation:", cube.evaluate_cube())
 
-#     start_time = time.time()
-#     cube.stochastic_hill_climb()
-#     end_time = time.time()
+    #     start_time = time.time()
+    #     cube.stochastic_hill_climb()
+    #     end_time = time.time()
 
-#     print(f"Time taken: {end_time - start_time} seconds")
+    #     print(f"Time taken: {end_time - start_time} seconds")
 
-# def main():
-#     # Get user input
-#     population_size, iterations = get_user_input()
+    # def main():
+    #     # Get user input
+    #     population_size, iterations = get_user_input()
 
-#     # Create an instance of Cube
-#     cube = Cube()
+    #     # Create an instance of Cube
+    #     cube = Cube()
 
-#     # Run the genetic algorithm
-#     initial_state, final_state, final_fitness = cube.genetic_algorithm(population_size, iterations)
+    #     # Run the genetic algorithm
+    #     initial_state, final_state, final_fitness = cube.genetic_algorithm(population_size, iterations)
 
-# if __name__ == "__main__":
-#     main()
+    # if __name__ == "__main__":
+    #     main()
 
     def random_restart_hill_climb(self, max_restarts=2, max_iterations=1000):
         best_grid = None

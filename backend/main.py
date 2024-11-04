@@ -99,6 +99,17 @@ def search(
             initial_state=initial_state,
             iterations_history=iterations_history,
         )
+    elif req.algorithm == "hc-stochastic":
+        return SearchResponseHC(
+            message=message,
+            initial_obj_value=initial_obj_value,
+            final_obj_value=total_deviation,
+            iterations=iterations,
+            time=time,
+            final_state=final_state,
+            initial_state=initial_state,
+            iterations_history=iterations_history,
+        )
     elif req.algorithm == "hc-sideways":
         return SearchResponseHC(
             message=message,
