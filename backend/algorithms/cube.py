@@ -40,39 +40,39 @@ class Cube:
         # Kubus yang sudah optimal (dari web https://mathworld.wolfram.com/PerfectMagicCube.html)
         magic_cube = [
             [
-                [72, 48, 91, 35, 74],
-                [93, 57, 39, 92, 16],
-                [109, 103, 46, 18, 121],
-                [27, 8, 112, 104, 75],
-                [43, 58, 56, 99, 45],
+                [25, 16, 80, 104, 90],
+                [115, 98, 4, 1, 97],
+                [42, 111, 85, 2, 75],
+                [66, 72, 27, 102, 48],
+                [67, 18, 119, 106, 5],
             ],
             [
-                [66, 24, 80, 106, 29],
-                [111, 38, 23, 84, 59],
-                [88, 5, 124, 49, 64],
-                [90, 125, 60, 17, 47],
-                [1, 82, 14, 67, 123],
+                [91, 77, 71, 6, 70],
+                [52, 64, 117, 69, 13],
+                [30, 118, 21, 123, 23],
+                [26, 39, 92, 44, 114],
+                [116, 17, 14, 73, 95],
             ],
             [
-                [34, 110, 41, 6, 52],
-                [11, 113, 78, 115, 3],
-                [95, 42, 31, 116, 53],
-                [114, 4, 69, 20, 117],
-                [79, 19, 87, 68, 76],
+                [47, 61, 45, 76, 86],
+                [107, 43, 38, 33, 94],
+                [89, 68, 63, 58, 37],
+                [32, 93, 88, 83, 19],
+                [40, 50, 81, 65, 79],
             ],
             [
-                [102, 40, 9, 107, 105],
-                [15, 44, 122, 2, 108],
-                [25, 70, 97, 50, 54],
-                [33, 85, 51, 94, 30],
-                [83, 62, 37, 96, 13],
+                [31, 53, 112, 109, 10],
+                [12, 82, 34, 87, 100],
+                [103, 3, 105, 8, 96],
+                [113, 57, 9, 62, 74],
+                [56, 120, 55, 49, 35],
             ],
             [
-                [71, 55, 100, 28, 86],
-                [77, 32, 81, 7, 119],
-                [12, 65, 36, 98, 63],
-                [26, 118, 10, 120, 22],
-                [73, 101, 89, 21, 61],
+                [121, 108, 7, 20, 59],
+                [29, 28, 122, 125, 11],
+                [51, 15, 41, 124, 84],
+                [78, 54, 99, 24, 60],
+                [36, 110, 46, 22, 101],
             ],
         ]
 
@@ -211,7 +211,7 @@ class Cube:
 
         if current_deviation == 0:
             message = "Already at global optimum"
-            return self.grid, current_deviation, 0, message, iterations_history
+            return (self.grid, current_deviation, 0, message, iterations_history)
 
         for iteration in range(max_iterations):
             best_deviation = current_deviation
@@ -320,12 +320,7 @@ class Cube:
         print(self.grid, current_deviation, iteration + 1)
         return self.grid, current_deviation, (iteration + 1)
 
-    def simulated_annealing(
-        self,
-        initial_temp=10000,
-        min_temp=0.1,
-        cooling_rate=0.99995,
-    ):
+    def simulated_annealing(self, initial_temp=10000, min_temp=1, cooling_rate=0.9995):
         current_grid = copy.deepcopy(self.grid)
         current_deviation = self.evaluate_cube()
         temperature = initial_temp
@@ -335,6 +330,8 @@ class Cube:
         iterations_history = []
 
         while temperature > min_temp:
+            if current_deviation == 0:
+                break
             # Generate a neighbor by swapping two random elements
             neighbor_grid = copy.deepcopy(current_grid)
             x1, y1, z1 = (
@@ -376,7 +373,7 @@ class Cube:
                 iterations_history.append(
                     {
                         "iteration": iteration + 1,
-                        "eET": round(acceptance_probability, 2),
+                        "eET": round(acceptance_probability, 5),
                     }
                 )
 

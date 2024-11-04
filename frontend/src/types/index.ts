@@ -1,6 +1,10 @@
-interface Iterations_history {
+export interface Iterations_history {
   iteration: number;
   obj_value: number;
+}
+export interface Iterations_history_sa {
+  iteration: number;
+  eET: number;
 }
 
 export interface SearchResponse {
@@ -11,7 +15,8 @@ export interface SearchResponse {
   time: number;
   final_state: number[][][];
   initial_state: number[][][];
-  iterations_history: Iterations_history[];
+  iterations_history: Iterations_history[] | Iterations_history_sa[];
+  frequency?: number;
 }
 
 export interface ResultsProps {
@@ -22,7 +27,9 @@ export interface ResultsProps {
   time: number;
   iterations: number;
   onBack: () => void;
-  iterations_history: Iterations_history[];
+  iterations_history: Iterations_history[] | Iterations_history_sa[];
+  algorithm: string;
+  frequency?: number;
 }
 
 export interface LandingProps {

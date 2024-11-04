@@ -42,6 +42,8 @@ const App = () => {
         iterations={data.iterations}
         onBack={() => window.location.reload()}
         iterations_history={data.iterations_history}
+        algorithm={selectedAlgorithm}
+        frequency={data.frequency}
       />
     );
   }
