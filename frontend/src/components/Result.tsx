@@ -1,6 +1,10 @@
 import React from "react";
 import MagicCube1 from "./MagicCube";
-import { ResultsProps } from "../types";
+import {
+  Iterations_history,
+  Iterations_history_sa,
+  ResultsProps,
+} from "../types";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,40 +28,6 @@ ChartJS.register(
   Legend
 );
 
-const chartOptions: ChartOptions<"line"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top",
-      labels: { color: "white" },
-    },
-    tooltip: {
-      backgroundColor: "rgba(0,0,0,0.8)",
-    },
-  },
-  scales: {
-    y: {
-      title: {
-        display: true,
-        text: "Objective Value",
-        color: "white",
-      },
-      grid: { color: "rgba(255,255,255,0.1)" },
-      ticks: { color: "white" },
-    },
-    x: {
-      title: {
-        display: true,
-        text: "Iteration",
-        color: "white",
-      },
-      grid: { color: "rgba(255,255,255,0.1)" },
-      ticks: { color: "white" },
-    },
-  },
-};
-
 const Results: React.FC<ResultsProps> = ({
   initial_state,
   final_state,
@@ -67,7 +37,43 @@ const Results: React.FC<ResultsProps> = ({
   iterations,
   onBack,
   iterations_history,
+  algorithm,
+  frequency,
 }) => {
+  const chartOptions: ChartOptions<"line"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: { color: "white" },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0,0,0,0.8)",
+      },
+    },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: algorithm === "sa" ? "e^(-ΔE/T)" : "Objective Value",
+          color: "white",
+        },
+        grid: { color: "rgba(255,255,255,0.1)" },
+        ticks: { color: "white" },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Iteration",
+          color: "white",
+        },
+        grid: { color: "rgba(255,255,255,0.1)" },
+        ticks: { color: "white" },
+      },
+    },
+  };
+
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-black to-slate-900 text-white">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -117,11 +123,13 @@ const Results: React.FC<ResultsProps> = ({
           <div>Final State Objective Function: {final_obj_value}</div>
           <div>Computation Time: {time.toFixed(2)}s</div>
           <div>Number of Iterations: {iterations}</div>
+          {frequency && <div>Frequency: {frequency}</div>}
         </div>
 
         <div className="bg-gray-800/50 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">
-            Plot of Objective Value vs Iteration
+            Plot of {algorithm === "sa" ? "e^(-ΔE/T) " : "Objective Value "}
+            vs Iteration
           </h2>
           <div className="h-[400px]">
             <Line
@@ -129,8 +137,15 @@ const Results: React.FC<ResultsProps> = ({
                 labels: iterations_history.map((h) => h.iteration),
                 datasets: [
                   {
-                    label: "Objective Value",
-                    data: iterations_history.map((h) => h.obj_value),
+                    label: algorithm === "sa" ? "e^(-ΔE/T)" : "Objective Value",
+                    data:
+                      algorithm === "sa"
+                        ? (iterations_history as Iterations_history_sa[]).map(
+                            (h) => h.eET
+                          )
+                        : (iterations_history as Iterations_history[]).map(
+                            (h) => h.obj_value
+                          ),
                     borderColor: "#3b82f6",
                     backgroundColor: "rgba(59, 130, 246, 0.1)",
                     tension: 0.1,

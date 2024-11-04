@@ -63,7 +63,9 @@ def read_root():
 
 
 @app.post("/search")
-def search(req: SearchRequest) -> SearchResponse | SearchResponseGA | SearchResponseSA:
+def search(
+    req: SearchRequest,
+) -> SearchResponseHC | SearchResponseGA | SearchResponseSA:
     (
         message,
         total_deviation,
@@ -80,6 +82,7 @@ def search(req: SearchRequest) -> SearchResponse | SearchResponseGA | SearchResp
     )
 
     if req.algorithm == "hc":
+        print(iterations_history)
         return SearchResponseHC(
             message=message,
             initial_obj_value=initial_obj_value,
