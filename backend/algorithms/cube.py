@@ -276,12 +276,13 @@ class Cube:
             iterations_history,
         )
 
-    def sideways(self, max_iterations=1000):
+    def sideways(self, max_iterations=1000, max_sideways=100):
         past_cubes = cl()
         current_deviation = self.evaluate_cube()
         best_grid = copy.deepcopy(self.grid)
         message = ""
         iterations_history = [{"iteration": 0, "obj_value": current_deviation}]
+        n_sideways = 0
         if current_deviation == 0:
             print("Already at global optimum")
             return self.grid, current_deviation, 0
@@ -324,9 +325,16 @@ class Cube:
                                         found_improvement = True
 
             # Move to the best neighbor if it's better than the current
-            if found_improvement and best_deviation <= current_deviation:
+            if (
+                found_improvement
+                and best_deviation <= current_deviation
+                and n_sideways < max_sideways
+            ):
                 if best_deviation < current_deviation:
                     past_cubes.reset()
+                    n_sideways = 0
+                elif best_deviation == current_deviation:
+                    n_sideways += 1
                 self.grid = best_grid
                 current_deviation = best_deviation
                 print(
@@ -547,7 +555,7 @@ class Cube:
     # if __name__ == "__main__":
     #     main()
 
-    def random_restart_hill_climb(self, max_restarts=2, max_iterations=1000):
+    def random_restart_hill_climb(self, max_restarts=3, max_iterations=1000):
         best_grid = None
         best_deviation = float("inf")
         restart_count = 0
@@ -609,7 +617,9 @@ class Cube:
             best_initial_obj_value,  # Add to return tuple
         )
 
-    def simulated_annealing(self, initial_temp=10000, min_temp=1, cooling_rate=0.9995):
+    def simulated_annealing(
+        self, initial_temp=10000, min_temp=1, cooling_rate=0.999995
+    ):
         current_grid = copy.deepcopy(self.grid)
         current_deviation = self.evaluate_cube()
         temperature = initial_temp
@@ -617,6 +627,7 @@ class Cube:
         frequency = 0
         message = ""
         iterations_history = []
+        save_counter = 0  # New counter for tracking iterations between saves
 
         while temperature > min_temp:
             if current_deviation == 0:
@@ -649,22 +660,29 @@ class Cube:
             delta = neighbor_deviation - current_deviation
 
             # Decide whether to accept the neighbor
+            save_history = False
             if delta < 0:
                 current_grid = neighbor_grid
                 current_deviation = neighbor_deviation
-                iterations_history.append({"iteration": iteration + 1, "eET": 1})
+                acceptance_probability = 1
+                save_history = True
             else:
                 frequency += 1
                 acceptance_probability = math.exp(-delta / temperature)
                 if random.random() < acceptance_probability:
                     current_grid = neighbor_grid
                     current_deviation = neighbor_deviation
+                save_history = True
+
+            save_counter += 1
+            if save_counter >= 1000:
                 iterations_history.append(
                     {
                         "iteration": iteration + 1,
                         "eET": round(acceptance_probability, 5),
                     }
                 )
+                save_counter = 0
 
             temperature *= cooling_rate
 
