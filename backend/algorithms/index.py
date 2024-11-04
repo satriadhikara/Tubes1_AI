@@ -9,6 +9,8 @@ def solve_cube(algorithm):
     start_time = time.time()
     frequency = None
     population = None
+    restart_count = None
+    iterations_per_restart = None
     if algorithm == "hc":
         grid, deviation, iterations, message, iterations_history = (
             cube.steepest_ascent_hill_climb()
