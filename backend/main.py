@@ -56,6 +56,11 @@ class SearchResponseSA(SearchResponse):
     iterations_history: list[IterationHistorySA]
 
 
+class SearchResponseHCRR(SearchResponseHC):
+    restart_count: int
+    iterations_per_restart: list[int]
+
+
 @app.get("/")
 def read_root():
     time.sleep(10)  # Debugging purpose
@@ -65,7 +70,7 @@ def read_root():
 @app.post("/search")
 def search(
     req: SearchRequest,
-) -> SearchResponseHC | SearchResponseGA | SearchResponseSA:
+) -> SearchResponseHC | SearchResponseGA | SearchResponseSA | SearchResponseHCRR:
     (
         message,
         total_deviation,
@@ -77,6 +82,8 @@ def search(
         initial_state,
         initial_obj_value,
         iterations_history,
+        restart_count,
+        iterations_per_restart,
     ) = solve_cube(
         req.algorithm,
     )
@@ -102,6 +109,19 @@ def search(
             final_state=final_state,
             initial_state=initial_state,
             iterations_history=iterations_history,
+        )
+    elif req.algorithm == "hc-random-restart":
+        return SearchResponseHCRR(
+            message=message,
+            initial_obj_value=initial_obj_value,
+            final_obj_value=total_deviation,
+            iterations=iterations,
+            time=time,
+            final_state=final_state,
+            initial_state=initial_state,
+            iterations_history=iterations_history,
+            restart_count=restart_count,
+            iterations_per_restart=iterations_per_restart,
         )
     elif req.algorithm == "sa":
         return SearchResponseSA(

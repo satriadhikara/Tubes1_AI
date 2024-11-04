@@ -346,49 +346,67 @@ class Cube:
             iterations_history,
         )
 
-    def random_restart_hill_climb(self, max_restarts=10, max_iterations=1000):
+    def random_restart_hill_climb(self, max_restarts=2, max_iterations=1000):
         best_grid = None
         best_deviation = float("inf")
         restart_count = 0
+        message = ""
+        best_iterations_history = []
+        iterations_per_restart = []
+        best_iterations = 0
+        best_initial_obj_value = 0  # Track initial obj value of best restart
 
         while restart_count < max_restarts:
-            # Start pertama kali atau stuck di local optimum
-            if restart_count == 0 or stuck_in_local_optimum:
-                self.grid = self.generate_grid()  # Generate state baru secara random
-                print(f"\nRestart {restart_count + 1}/{max_restarts}")
-                restart_count += 1
+            self.grid = self.generate_grid()
+            print(f"\nRestart {restart_count + 1}/{max_restarts}")
+            restart_count += 1
 
             current_deviation = self.evaluate_cube()
             print(f"Initial Deviation for this run: {current_deviation}")
 
-            # Proses maju ke next state dengan steepest ascent hill climb
-            final_grid, final_deviation, iterations = self.steepest_ascent_hill_climb(
-                max_iterations
+            final_grid, final_deviation, iterations, _, step_history = (
+                self.steepest_ascent_hill_climb(max_iterations)
             )
 
-            # Check apakah current state (final) lebih baik dari best state
+            print(f"iterations: {iterations}")
+            iterations_per_restart.append(iterations)
+
             if final_deviation < best_deviation:
                 best_deviation = final_deviation
+                best_iterations = iterations
                 best_grid = copy.deepcopy(final_grid)
+                best_iterations_history = step_history
+                best_initial_obj_value = current_deviation  # Save initial obj value
                 print(
                     f"New best deviation found: {best_deviation} after {restart_count} restarts"
                 )
 
-            # Stop ketika global optimum sudah ditemukan
             if best_deviation == 0:
+                message = "Found global optimum"
                 print("Global optimum found!")
                 break
 
-            # Check apakah stuck di local optimum
             stuck_in_local_optimum = final_deviation == current_deviation
 
-            # If no further improvement is made (stuck in local optimum), continue to the next restart
             if stuck_in_local_optimum:
                 print("Stuck in local optimum, restarting...")
 
+        if best_deviation > 0:
+            message = f"Reached max restarts ({max_restarts})"
+
         print(f"\nBest Deviation after {restart_count} restarts: {best_deviation}")
-        self.grid = best_grid  # Set the best found configuration to the cube
-        return best_grid, best_deviation
+        self.grid = best_grid
+
+        return (
+            self.grid,
+            best_deviation,
+            best_iterations,
+            message,
+            best_iterations_history,
+            restart_count,
+            iterations_per_restart,
+            best_initial_obj_value,  # Add to return tuple
+        )
 
     def simulated_annealing(self, initial_temp=10000, min_temp=1, cooling_rate=0.9995):
         current_grid = copy.deepcopy(self.grid)

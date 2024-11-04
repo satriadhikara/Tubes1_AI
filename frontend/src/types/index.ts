@@ -17,6 +17,8 @@ export interface SearchResponse {
   initial_state: number[][][];
   iterations_history: Iterations_history[] | Iterations_history_sa[];
   frequency?: number;
+  restart_count?: number;
+  iterations_per_restart?: number[];
 }
 
 export interface ResultsProps {
@@ -30,6 +32,8 @@ export interface ResultsProps {
   iterations_history: Iterations_history[] | Iterations_history_sa[];
   algorithm: string;
   frequency?: number;
+  restart_count?: number;
+  iterations_per_restart?: number[];
 }
 
 export interface LandingProps {

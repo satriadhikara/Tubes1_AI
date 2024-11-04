@@ -44,6 +44,8 @@ const App = () => {
         iterations_history={data.iterations_history}
         algorithm={selectedAlgorithm}
         frequency={data.frequency}
+        restart_count={data.restart_count}
+        iterations_per_restart={data.iterations_per_restart}
       />
     );
   }

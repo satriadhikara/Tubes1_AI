@@ -30,7 +30,7 @@ const Landing: React.FC<LandingProps> = ({
             <SelectItem key="hc" value="hc">
               HC Steepest Ascent
             </SelectItem>
-            <SelectItem key="hc_r" value="hc_r">
+            <SelectItem key="hc-random-restart" value="hc-random-restart">
               HC Random Restart
             </SelectItem>
             <SelectItem key="hc-sideways" value="hc-sideways">

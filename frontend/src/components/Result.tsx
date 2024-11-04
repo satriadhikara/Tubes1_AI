@@ -39,6 +39,8 @@ const Results: React.FC<ResultsProps> = ({
   iterations_history,
   algorithm,
   frequency,
+  restart_count,
+  iterations_per_restart,
 }) => {
   const chartOptions: ChartOptions<"line"> = {
     responsive: true,
@@ -124,6 +126,13 @@ const Results: React.FC<ResultsProps> = ({
           <div>Computation Time: {time.toFixed(2)}s</div>
           <div>Number of Iterations: {iterations}</div>
           {frequency && <div>Frequency: {frequency}</div>}
+          {restart_count && <div>Number of Restarts: {restart_count}</div>}
+          {iterations_per_restart &&
+            iterations_per_restart.map((iter, idx) => (
+              <div key={idx}>
+                Iterations in Restart {idx + 1}: {iter}
+              </div>
+            ))}
         </div>
 
         <div className="bg-gray-800/50 rounded-lg p-6">
