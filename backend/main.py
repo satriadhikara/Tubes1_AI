@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from algorithms.index import solve_cube
+import time
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 HELLO_RESPONSE = {"Hello": "World"}
@@ -11,15 +21,30 @@ HELLO_RESPONSE = {"Hello": "World"}
 
 class SearchRequest(BaseModel):
     algorithm: str
-    initial_state: list[list[list[int]]]
+
+
+class IterationHistoryHC(BaseModel):
+    iteration: int
+    obj_value: int
+
+
+class IterationHistorySA(BaseModel):
+    iteration: int
+    eET: float
 
 
 class SearchResponse(BaseModel):
     message: str
-    total_deviation: int
+    initial_obj_value: int
+    final_obj_value: int
     iterations: int
     time: float
+    initial_state: list[list[list[int]]]
     final_state: list[list[list[int]]]
+
+
+class SearchResponseHC(SearchResponse):
+    iterations_history: list[IterationHistoryHC]
 
 
 class SearchResponseGA(SearchResponse):
@@ -28,45 +53,52 @@ class SearchResponseGA(SearchResponse):
 
 class SearchResponseSA(SearchResponse):
     frequency: int
+    iterations_history: list[IterationHistorySA]
 
 
 @app.get("/")
 def read_root():
+    time.sleep(10)  # Debugging purpose
     return HELLO_RESPONSE
 
 
-@app.get("/search")
+@app.post("/search")
 def search(req: SearchRequest) -> SearchResponse | SearchResponseGA | SearchResponseSA:
-    message, total_deviation, iterations, time, final_state, frequency, population = (
-        solve_cube(
-            req.initial_state,
-            req.algorithm,
-        )
+    (
+        message,
+        total_deviation,
+        iterations,
+        time,
+        final_state,
+        frequency,
+        population,
+        initial_state,
+        initial_obj_value,
+        iterations_history,
+    ) = solve_cube(
+        req.algorithm,
     )
 
-    if req.algorithm == "ga":
-        return SearchResponseGA(
+    if req.algorithm == "hc":
+        return SearchResponseHC(
             message=message,
-            total_deviation=total_deviation,
+            initial_obj_value=initial_obj_value,
+            final_obj_value=total_deviation,
             iterations=iterations,
             time=time,
             final_state=final_state,
-            population=population,
+            initial_state=initial_state,
+            iterations_history=iterations_history,
         )
     elif req.algorithm == "sa":
         return SearchResponseSA(
             message=message,
-            total_deviation=total_deviation,
+            initial_obj_value=initial_obj_value,
+            final_obj_value=total_deviation,
             iterations=iterations,
             time=time,
             final_state=final_state,
             frequency=frequency,
-        )
-    elif req.algorithm == "hc":
-        return SearchResponse(
-            message=message,
-            total_deviation=total_deviation,
-            iterations=iterations,
-            time=time,
-            final_state=final_state,
+            initial_state=initial_state,
+            iterations_history=iterations_history,
         )
