@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 class CustomList:
     def __init__(self):
-        self.size = 100  # Ukuran kubus
+        self.size = 0  # Ukuran kubus
         self.arr = []
     
     def add(self,element):
@@ -11,10 +11,14 @@ class CustomList:
 
     def reset(self):
         self.arr = []
+        self.size = 0
 
 
-    # def isIn(self,element):
-    #     if self.size >= 20
+    def isIn(self,element):
+        if self.size <= 5:
+            return self.__checkElement(element)
+        else:
+            return self.__checkElementConcurrent(element)
 
     def __checkElement(self,element):
         for el in self.arr:
@@ -39,5 +43,4 @@ class CustomList:
 
     def __check_in_chunk(self, chunk, element):
         return element in chunk
-
 
