@@ -1,6 +1,6 @@
 # Solution Search for Diagonal Magic Cube with Local Search
 
-This repository contains a program to find solutions for a **Diagonal Magic Cube** using various _Local Search_ methods. Built with _React.js_ and _TypeScript_, this interactive application allows users to experiment with different algorithms to achieve a solution. Implemented algorithms include _Steepest Ascent Hill Climbing_, _Simulated Annealing_, _Random Restart Hill Climbing_, _Stochastic Hill Climbing_, and _Genetic Algorithm_, which are used to find optimal or near-optimal configurations for the diagonal magic cube.
+This repository contains a program to find solutions for a **Diagonal Magic Cube** using various _Local Search_ methods. Built with _React.js_ and _TypeScript_, this interactive application allows users to experiment with different algorithms to achieve a solution. Implemented algorithms with _python_ include _Steepest Ascent Hill Climbing_, _Simulated Annealing_, _Random Restart Hill Climbing_, _Stochastic Hill Climbing_, and _Genetic Algorithm_, which are used to find optimal or near-optimal configurations for the diagonal magic cube.
 
 ## Table of Contents
 

@@ -291,7 +291,7 @@ class Cube:
             best_deviation = current_deviation
             found_improvement = False
             past_cubes.add(self.grid)
-            # Generate all unique neighbors by swapping each unique pair of elements
+
             for x1 in range(self.size):
                 for y1 in range(self.size):
                     for z1 in range(self.size):
@@ -302,20 +302,17 @@ class Cube:
                                         x2,
                                         y2,
                                         z2,
-                                    ):  # Avoid duplicate and self-swaps
+                                    ):
                                         continue
 
-                                    # Create a copy of the grid and perform the swap
                                     neighbor = copy.deepcopy(self.grid)
                                     neighbor[x1][y1][z1], neighbor[x2][y2][z2] = (
                                         neighbor[x2][y2][z2],
                                         neighbor[x1][y1][z1],
                                     )
 
-                                    # Evaluate the neighbor
                                     deviation = self.evaluate_cube_on_grid(neighbor)
 
-                                    # Update the best neighbor found
                                     if (
                                         deviation <= best_deviation
                                         and not past_cubes.isIn(neighbor)
@@ -324,7 +321,6 @@ class Cube:
                                         best_grid = neighbor
                                         found_improvement = True
 
-            # Move to the best neighbor if it's better than the current
             if (
                 found_improvement
                 and best_deviation <= current_deviation
@@ -373,7 +369,7 @@ class Cube:
             found_improvement = False
 
             for attempt in range(max_attempts):
-                # Random point selection for swap
+
                 x1, y1, z1 = (
                     random.randint(0, self.size - 1),
                     random.randint(0, self.size - 1),
@@ -430,14 +426,12 @@ class Cube:
         )
 
     def genetic_algorithm(self, population_size=50, iterations=1000):
-        # Generate initial population
+
         population = [self.generate_grid() for _ in range(population_size)]
 
-        # Track fitness history
         max_fitness_history = []
         avg_fitness_history = []
 
-        # Evaluate initial state
         initial_state = copy.deepcopy(population[0])
         initial_fitness = self.evaluate_cube_on_grid(initial_state)
 
@@ -445,14 +439,13 @@ class Cube:
         best_individual = None
 
         for iteration in range(iterations):
-            # Evaluate fitness of each individual
+
             fitness_scores = [
                 (self.evaluate_cube_on_grid(individual), individual)
                 for individual in population
             ]
             fitness_scores.sort(key=lambda x: x[0])
 
-            # Calculate and store fitness statistics
             current_fitness_values = [score[0] for score in fitness_scores]
             max_fitness = max(current_fitness_values)
             avg_fitness = sum(current_fitness_values) / len(current_fitness_values)
@@ -460,16 +453,13 @@ class Cube:
             max_fitness_history.append(max_fitness)
             avg_fitness_history.append(avg_fitness)
 
-            # Keep track of best solution
             if fitness_scores[0][0] < best_fitness:
                 best_fitness, best_individual = fitness_scores[0]
 
-            # Selection
             selected_population = [
                 individual for _, individual in fitness_scores[: population_size // 2]
             ]
 
-            # Crossover and mutation
             next_population = []
             while len(next_population) < population_size:
                 parent1 = random.choice(selected_population)
@@ -483,12 +473,11 @@ class Cube:
         final_state = best_individual
         final_fitness = best_fitness
 
-        # Return with fitness histories and total iterations
         return (
             initial_state,
             final_state,
             population_size,
-            iterations,  # Added total iterations
+            iterations,
             final_fitness,
             max_fitness_history,
             avg_fitness_history,
@@ -563,7 +552,7 @@ class Cube:
         best_iterations_history = []
         iterations_per_restart = []
         best_iterations = 0
-        best_initial_obj_value = 0  # Track initial obj value of best restart
+        best_initial_obj_value = 0
 
         while restart_count < max_restarts:
             self.grid = self.generate_grid()
@@ -585,7 +574,7 @@ class Cube:
                 best_iterations = iterations
                 best_grid = copy.deepcopy(final_grid)
                 best_iterations_history = step_history
-                best_initial_obj_value = current_deviation  # Save initial obj value
+                best_initial_obj_value = current_deviation
                 print(
                     f"New best deviation found: {best_deviation} after {restart_count} restarts"
                 )
@@ -614,7 +603,7 @@ class Cube:
             best_iterations_history,
             restart_count,
             iterations_per_restart,
-            best_initial_obj_value,  # Add to return tuple
+            best_initial_obj_value,
         )
 
     def simulated_annealing(
@@ -627,12 +616,11 @@ class Cube:
         frequency = 0
         message = ""
         iterations_history = []
-        save_counter = 0  # New counter for tracking iterations between saves
+        save_counter = 0
 
         while temperature > min_temp:
             if current_deviation == 0:
                 break
-            # Generate a neighbor by swapping two random elements
             neighbor_grid = copy.deepcopy(current_grid)
             x1, y1, z1 = (
                 random.randint(0, self.size - 1),
@@ -645,21 +633,17 @@ class Cube:
                 random.randint(0, self.size - 1),
             )
 
-            # Swap two values in the neighbor grid
             neighbor_grid[x1][y1][z1], neighbor_grid[x2][y2][z2] = (
                 neighbor_grid[x2][y2][z2],
                 neighbor_grid[x1][y1][z1],
             )
 
-            # Evaluate the neighbor's deviation
             self.grid = neighbor_grid
             neighbor_deviation = self.evaluate_cube()
             self.grid = current_grid
 
-            # Calculate the change in deviation (energy difference)
             delta = neighbor_deviation - current_deviation
 
-            # Decide whether to accept the neighbor
             save_history = False
             if delta < 0:
                 current_grid = neighbor_grid
@@ -698,7 +682,6 @@ class Cube:
         else:
             message = "Reached minimum temperature"
 
-        # Update the grid to the best configuration found
         self.grid = current_grid
 
         return (
